@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "hauto-plugins-hap-service"
+version = "0.1.0"
+description = ""
+authors = ["Pedro Moura <pmoura.dev@gmail.com>"]
+readme = "README.md"
+packages = [{include = "hauto"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.31.0"
+hap-python = {extras = ["qrcode"], version = "^4.9.1"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
