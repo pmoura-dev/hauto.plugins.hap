@@ -2,6 +2,7 @@ from pyhap.accessory import Accessory
 from pyhap.accessory_driver import AccessoryDriver
 
 import actions
+import state
 
 AUTOMATIC_MODE = 0
 HEATING_MODE = 1
@@ -19,8 +20,8 @@ class AirConditioner(Accessory):
             chars=['CoolingThresholdTemperature', 'HeatingThresholdTemperature']
         )
 
-        self.char_active = service.configure_char('Active', setter_callback=self.switch)
-        self.char_temp = service.configure_char('CurrentTemperature', value=-1)
+        self.char_active = service.configure_char('Active', setter_callback=self.switch, getter_callback=self.get_active)
+        self.char_temp = service.configure_char('CurrentTemperature', getter_callback=self.get_temp)
         self.char_current_state = service.configure_char('CurrentHeaterCoolerState')
         self.char_target_state = service.configure_char('TargetHeaterCoolerState', setter_callback=self.set_mode)
         self.char_set_cooling_temperature = service.configure_char('CoolingThresholdTemperature',
@@ -30,7 +31,15 @@ class AirConditioner(Accessory):
                                                                    setter_callback=self.set_heating_temperature)
         self.char_set_heating_temperature.override_properties({'minStep': 1, 'minValue': 20})
 
-    def switch(self, value: bool) -> None:
+    def get_active(self) -> int:
+        current_state = state.get_state(self.device_id)
+        return 1 if current_state['state']['status'] == "online" else 0
+
+    def get_temp(self) -> int:
+        current_state = state.get_state(self.device_id)
+        return current_state['state']['current_temperature']
+
+    def switch(self, value: int) -> None:
         if value:
             actions.turn_on(self.device_id)
         else:
